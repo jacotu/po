@@ -109,10 +109,7 @@ export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [highlightFontCredit, setHighlightFontCredit] = useState(false);
   const [colophonOpen, setColophonOpen] = useState(false);
-  const [prevNameForFade, setPrevNameForFade] = useState<string | null>(null);
-  const [nameFadeActive, setNameFadeActive] = useState(false);
   const mobileTouchStartX = useRef<number | null>(null);
-  const nameFadeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const COLOPHON_TEXT = `This research explores punctuation as a minor but significant aspect of written communication. The project collects historical and experimental examples of punctuation marks, both standardised and experimental, in order to examine how minimal graphic symbols organise reading, understanding, and tone. Each punctuation mark is treated as a functional tool whose shape, placement on the line, and typographical weight correspond to a specific communicative purpose. By gathering these marks within a common framework, the study examines how punctuation has evolved to accommodate new types of textual complexity: pauses for spoken reading, syntactical boundaries for silent reading, and indicators of tone in contemporary digital communication.
 
@@ -141,8 +138,6 @@ Read together, these experiments reveal punctuation as an evolving system shaped
 
   const handleSelect = (name: string) => {
     const sym = getSymbol(name);
-    setPrevNameForFade(selected.name);
-    setNameFadeActive(false);
     setPrevImg(currentImg);
     setCurrentImg(sym.image);
     setImgFading(true);
@@ -155,21 +150,6 @@ Read together, these experiments reveal punctuation as an evolving system shaped
     setFadeKey(k => k + 1);
     if (isMobile) setMobileTab("history");
   };
-
-  useEffect(() => {
-    if (prevNameForFade != null && prevNameForFade !== selected.name) {
-      const startT = setTimeout(() => setNameFadeActive(true), 0);
-      if (nameFadeTimeout.current) clearTimeout(nameFadeTimeout.current);
-      nameFadeTimeout.current = setTimeout(() => {
-        setPrevNameForFade(selected.name);
-        setNameFadeActive(false);
-      }, 380);
-      return () => {
-        clearTimeout(startT);
-        if (nameFadeTimeout.current) clearTimeout(nameFadeTimeout.current);
-      };
-    }
-  }, [selected.name, prevNameForFade]);
 
   const handleZoneEnter = () => {
     if (hoverTimer.current) clearTimeout(hoverTimer.current);
@@ -350,35 +330,16 @@ Read together, these experiments reveal punctuation as an evolving system shaped
         <div style={{ background: "#faf8f3", padding: "12px 18px 0 18px", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 8 }}>
             <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: LABEL_COLOR }}>Symbol</span>
-            <span style={{ position: "relative", minHeight: "2.6em", display: "inline-block", verticalAlign: "bottom" }}>
-              {prevNameForFade != null && prevNameForFade !== selected.name && (
-                <span
-                  aria-hidden
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    fontFamily: FONT_MONO,
-                    fontSize: 22,
-                    color: "#717377",
-                    fontWeight: 400,
-                    opacity: nameFadeActive ? 0 : 1,
-                    transition: `opacity 0.32s ${EASE_GENTLE}`,
-                    pointerEvents: "none",
-                  }}
-                >
-                  {prevNameForFade}
-                </span>
-              )}
+            <span style={{ minHeight: "2.6em", display: "inline-block", verticalAlign: "bottom" }}>
               <span
+                key={fadeKey + "-mobile-name"}
                 style={{
-                  position: prevNameForFade != null && prevNameForFade !== selected.name ? "relative" : "static",
+                  display: "inline-block",
                   fontFamily: FONT_MONO,
                   fontSize: 22,
                   color: "#717377",
                   fontWeight: 400,
-                  opacity: prevNameForFade != null && prevNameForFade !== selected.name ? (nameFadeActive ? 1 : 0) : 1,
-                  transition: `opacity 0.32s ${EASE_GENTLE}`,
+                  animation: `titleSoft 0.22s ${EASE_GENTLE}`,
                 }}
               >
                 {selected.name}
@@ -597,43 +558,20 @@ Read together, these experiments reveal punctuation as an evolving system shaped
         >
           <div style={{ padding: "22px 20px 0 20px" }}>
             <p style={{ fontFamily: FONT_MONO, fontSize: 11, color: LABEL_COLOR, lineHeight: 1.6, margin: 0 }}>Symbol</p>
-            <p style={{ position: "relative", minHeight: "2.4em", margin: "2px 0 14px 0" }}>
-              {prevNameForFade != null && prevNameForFade !== selected.name && (
-                <span
-                  aria-hidden
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    fontFamily: FONT_MONO,
-                    fontSize: 28,
-                    color: "#717377",
-                    lineHeight: 1.2,
-                    fontWeight: 400,
-                    textWrap: "balance",
-                    opacity: nameFadeActive ? 0 : 1,
-                    transition: `opacity 0.32s ${EASE_GENTLE}`,
-                    pointerEvents: "none",
-                  }}
-                >
-                  {prevNameForFade}
-                </span>
-              )}
-              <span
-                style={{
-                  position: prevNameForFade != null && prevNameForFade !== selected.name ? "relative" : "static",
-                  fontFamily: FONT_MONO,
-                  fontSize: 28,
-                  color: "#717377",
-                  lineHeight: 1.2,
-                  fontWeight: 400,
-                  textWrap: "balance",
-                  opacity: prevNameForFade != null && prevNameForFade !== selected.name ? (nameFadeActive ? 1 : 0) : 1,
-                  transition: `opacity 0.32s ${EASE_GENTLE}`,
-                }}
-              >
+            <p
+              key={fadeKey + "-desktop-name"}
+              style={{
+                fontFamily: FONT_MONO,
+                fontSize: 28,
+                color: "#717377",
+                lineHeight: 1.2,
+                fontWeight: 400,
+                textWrap: "balance",
+                margin: "2px 0 14px 0",
+                animation: `titleSoft 0.22s ${EASE_GENTLE}`,
+              }}
+            >
                 {selected.name}
-              </span>
             </p>
           </div>
 
