@@ -96,12 +96,17 @@ function getSymbol(name: string): Symbol {
 }
 
 export default function App() {
+  const SITE_PASSWORD = "jacotu";
+  const PASSWORD_STORAGE_KEY = "punctum-obscurum-site-password";
   const [selected, setSelected] = useState<Symbol>(symbolsData[0]);
   const [fadeKey, setFadeKey] = useState(0);
   const [hoverZone, setHoverZone] = useState(false);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mobileTab, setMobileTab] = useState<"list" | "history">("list");
   const [isMobile, setIsMobile] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [highlightFontCredit, setHighlightFontCredit] = useState(false);
   const [colophonOpen, setColophonOpen] = useState(false);
   const [prevNameForFade, setPrevNameForFade] = useState<string | null>(null);
@@ -121,6 +126,12 @@ Read together, these experiments reveal punctuation as an evolving system shaped
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedPassword = window.localStorage.getItem(PASSWORD_STORAGE_KEY);
+    if (savedPassword === SITE_PASSWORD) setIsUnlocked(true);
+  }, [PASSWORD_STORAGE_KEY, SITE_PASSWORD]);
 
   // Crossfade image state
   const [currentImg, setCurrentImg] = useState(symbolsData[0].image);
@@ -170,6 +181,17 @@ Read together, these experiments reveal punctuation as an evolving system shaped
     setHoverZone(false);
   };
 
+  const handleUnlock = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (passwordValue === SITE_PASSWORD) {
+      window.localStorage.setItem(PASSWORD_STORAGE_KEY, SITE_PASSWORD);
+      setIsUnlocked(true);
+      setPasswordError("");
+      return;
+    }
+    setPasswordError("Incorrect password");
+  };
+
   const handleMobileContentTouchStart = (e: React.TouchEvent) => {
     mobileTouchStartX.current = e.touches[0].clientX;
   };
@@ -197,6 +219,82 @@ Read together, these experiments reveal punctuation as an evolving system shaped
   const ALL_SYMBOL_NAMES = [...rememberedNames, ...forgottenNames, ...objectedNames];
   const currentPage = Math.max(ALL_SYMBOL_NAMES.indexOf(selected.name) + 1, 1);
   const shouldAnimateFlow = selected.name.length > 16;
+
+  if (!isUnlocked) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "linear-gradient(180deg, #f4f1ea 0%, #ece7de 100%)",
+          color: "#61656c",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px",
+        }}
+      >
+        <form
+          onSubmit={handleUnlock}
+          style={{
+            width: "min(420px, 100%)",
+            background: "rgba(250,248,243,0.96)",
+            boxShadow: "10px 14px 32px rgba(0,0,0,0.08)",
+            border: "1px solid rgba(113,115,119,0.12)",
+            padding: "28px 24px 24px 24px",
+          }}
+        >
+          <p style={{ fontFamily: FONT_MONO, fontSize: 11, color: LABEL_COLOR, lineHeight: 1.6, margin: 0 }}>Access</p>
+          <h1 style={{ fontFamily: FONT_MONO, fontSize: 30, color: "#717377", lineHeight: 1.1, margin: "4px 0 14px 0", fontWeight: 400 }}>Punctum Obscurum</h1>
+          <p style={{ fontFamily: FONT_SLAB, fontSize: 14, color: TEXT_COLOR, lineHeight: 1.65, letterSpacing: "0.01em", margin: "0 0 18px 0" }}>
+            Enter the password to continue.
+          </p>
+          <label style={{ display: "block", fontFamily: FONT_MONO, fontSize: 11, color: LABEL_COLOR, lineHeight: 1.6, marginBottom: 6 }}>
+            Password
+          </label>
+          <input
+            type="password"
+            value={passwordValue}
+            onChange={(event) => {
+              setPasswordValue(event.target.value);
+              if (passwordError) setPasswordError("");
+            }}
+            style={{
+              width: "100%",
+              fontFamily: FONT_MONO,
+              fontSize: 16,
+              color: "#4f5358",
+              background: "rgba(255,255,255,0.85)",
+              border: "1px solid rgba(113,115,119,0.18)",
+              borderRadius: 0,
+              padding: "12px 14px",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          <div style={{ minHeight: 20, marginTop: 10 }}>
+            {passwordError ? (
+              <p style={{ fontFamily: FONT_MONO, fontSize: 11, color: "#8c5d63", lineHeight: 1.6, margin: 0 }}>{passwordError}</p>
+            ) : null}
+          </div>
+          <button
+            type="submit"
+            style={{
+              marginTop: 6,
+              fontFamily: FONT_MONO,
+              fontSize: 11,
+              color: "#faf8f3",
+              background: "#61656c",
+              border: "none",
+              padding: "12px 16px",
+              cursor: "pointer",
+            }}
+          >
+            Enter
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   // ─── MOBILE ──────────────────────────────────────────────
   if (isMobile) {

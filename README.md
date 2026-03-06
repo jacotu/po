@@ -8,6 +8,8 @@ A site about punctuation — remembered and forgotten symbols.
 - `npm run dev` — start the development server  
 - `npm run build` — production build  
 
+The site includes a built-in access gate. The current password is fixed in the app.
+
 The ABC Daily font files are expected at `public/fonts/`:
 `ABCDailySlabVariable-Trial.ttf`, `ABCDailySlabMonoVariable-Trial.ttf`.
 
