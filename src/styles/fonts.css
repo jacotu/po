@@ -1,0 +1,21 @@
+/* Place ABC Daily Slab .ttf files in public/fonts/ for Vite dev and build */
+@font-face {
+  font-family: "ABC Daily Slab";
+  src: local("ABC Daily Slab Regular"), local("ABC Daily Slab"), url("/fonts/ABCDailySlabVariable-Trial.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ABC Daily Slab Mono";
+  src: local("ABC Daily Slab Mono Regular"), local("ABC Daily Slab Mono"), url("/fonts/ABCDailySlabMonoVariable-Trial.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --font-abc-daily-slab: "ABC Daily Slab", "Times New Roman", serif;
+  --font-abc-daily-slab-mono: "ABC Daily Slab Mono", "ABC Daily Slab", "SFMono-Regular", Menlo, Consolas, monospace;
+}
